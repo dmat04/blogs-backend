@@ -1,14 +1,13 @@
 const router = require('express').Router()
 const Blog = require('../models/blog')
+const { EntityNotFoundError } = require('../middleware/errorHandler')
 
 const blogFinder = async (req, res, next) => {
   req.blog = await Blog.findByPk(req.params.id)
 
-  if (req.blog) {
-    next()
-  } else {
-    res.status(404).end()
-  }
+  if (!req.blog) throw new EntityNotFoundError()
+
+  next()
 }
 
 router.use('/:id', blogFinder)
@@ -19,12 +18,8 @@ router.get('/', async (req, res) => {
 })
 
 router.post('/', async (req, res) => {
-  try {
-    const blog = await Blog.create(req.body)
-    res.json(blog)
-  } catch (error) {
-    return res.status(400).json({ error })
-  }
+  const blog = await Blog.create(req.body)
+  res.json(blog)
 })
 
 router.delete('/:id', async (req, res) => {
@@ -33,15 +28,13 @@ router.delete('/:id', async (req, res) => {
 })
 
 router.put('/:id', async (req, res) => {
-  console.log(req.body.likes)
+  const likes = req.body.likes
+  
+  if (likes === undefined || likes < 0) throw new Error('Number of likes must be >= 0')
 
-  if (req.body.likes >= 0) {
-    req.blog.likes = req.body.likes
-    await req.blog.save()
-    res.json(req.blog)
-  } else {
-    res.status(400).end()
-  }
+  req.blog.likes = req.body.likes
+  await req.blog.save()
+  res.json(req.blog)
 })
 
 module.exports = router
