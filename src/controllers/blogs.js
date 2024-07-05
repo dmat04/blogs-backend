@@ -32,4 +32,16 @@ router.delete('/:id', async (req, res) => {
   res.status(200).end()
 })
 
+router.put('/:id', async (req, res) => {
+  console.log(req.body.likes)
+
+  if (req.body.likes >= 0) {
+    req.blog.likes = req.body.likes
+    await req.blog.save()
+    res.json(req.blog)
+  } else {
+    res.status(400).end()
+  }
+})
+
 module.exports = router
