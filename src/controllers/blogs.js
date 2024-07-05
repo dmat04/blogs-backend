@@ -1,5 +1,7 @@
 const router = require('express').Router()
+
 const Blog = require('../models/blog')
+const userAuthenticator = require('../middleware/userAuthenticator')
 const { EntityNotFoundError } = require('../middleware/errorHandler')
 
 const blogFinder = async (req, res, next) => {
@@ -17,8 +19,11 @@ router.get('/', async (req, res) => {
   res.json(blogs)
 })
 
-router.post('/', async (req, res) => {
-  const blog = await Blog.create(req.body)
+router.post('/', userAuthenticator, async (req, res) => {
+  const blog = await Blog.create({
+    ...req.body,
+    userId: req.user.id
+  })
   res.json(blog)
 })
 
