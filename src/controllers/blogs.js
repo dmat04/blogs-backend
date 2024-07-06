@@ -27,7 +27,11 @@ router.post('/', userAuthenticator, async (req, res) => {
   res.json(blog)
 })
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', userAuthenticator, async (req, res) => {
+  if (req.blog.userId !== req.user.id) {
+    return res.status(403).end()
+  }
+  
   await req.blog.destroy()
   res.status(200).end()
 })
