@@ -3,6 +3,8 @@ const { ValidationError } = require('sequelize')
 class EntityNotFoundError extends Error { }
 
 const errorHandler = async (err, req, res, next) => {
+  console.error(err)
+
   if (err instanceof EntityNotFoundError) {
     res.status(404).end()
   } else if (err instanceof ValidationError) {
