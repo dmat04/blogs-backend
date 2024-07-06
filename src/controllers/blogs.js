@@ -1,6 +1,6 @@
 const router = require('express').Router()
 
-const Blog = require('../models/blog')
+const { Blog, User } = require('../models')
 const userAuthenticator = require('../middleware/userAuthenticator')
 const { EntityNotFoundError } = require('../middleware/errorHandler')
 
@@ -15,7 +15,13 @@ const blogFinder = async (req, res, next) => {
 router.use('/:id', blogFinder)
 
 router.get('/', async (req, res) => {
-  const blogs = await Blog.findAll()
+  const blogs = await Blog.findAll({
+    attributes: { exclude: ['userId'] },
+    include: {
+      model: User,
+      attributes: ['username', 'name']
+    }
+  })
   res.json(blogs)
 })
 

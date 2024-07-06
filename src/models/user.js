@@ -2,17 +2,7 @@ const { Model, DataTypes } = require('sequelize')
 
 const { sequelize } = require('../util/db')
 
-class User extends Model {
-  toJSON() {
-    return {
-      id: this.id,
-      username: this.username,
-      name: this.name,
-      updatedAt: this.updatedAt,
-      createdAt: this.createdAt,
-    }
-  }
-}
+class User extends Model { }
 
 User.init({
   id: {

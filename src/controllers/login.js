@@ -1,8 +1,7 @@
-const jwt = require('jsonwebtoken')
 const router = require('express').Router()
 
-const { JWT_SECRET } = require('../util/config')
 const { checkPassword } = require('../util/password')
+const { generateToken } = require('../util/login')
 const { User } = require('../models')
 
 router.post('/', async (req, res) => {
@@ -13,19 +12,13 @@ router.post('/', async (req, res) => {
   ) || {}
   const passwordIsCorrect = await checkPassword(password, user.passwordHash)
 
-  console.log(passwordIsCorrect)
   if (!passwordIsCorrect) {
     return res.status(401).json({
       error: 'invalid username or password'
     })
   }
 
-  const userForToken = {
-    username: user.username,
-    id: user.id,
-  }
-
-  const token = jwt.sign(userForToken, JWT_SECRET)
+  const token = generateToken(user.username, user.id)
 
   res
     .status(200)

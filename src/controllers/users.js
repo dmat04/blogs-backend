@@ -2,12 +2,15 @@ const router = require('express').Router()
 
 const { User, Blog } = require('../models')
 const { hashPassword } = require('../util/password')
+const { generateToken } = require('../util/login')
 const { EntityNotFoundError } = require('../middleware/errorHandler')
 
 router.get('/', async (req, res) => {
   const users = await User.findAll({
-    attributes: {
-      exclude: ['passwordHash']
+    attributes: { exclude: ['passwordHash'] },
+    include: { 
+      model: Blog,
+      attributes: { exclude: 'userId' }
     } 
   })
   res.json(users)
@@ -30,7 +33,11 @@ router.post('/', async (req, res) => {
     passwordHash,
   })
 
-  res.json(user)
+  const token = generateToken(user.username, user.id)
+
+  res
+    .status(200)
+    .send({ token, username: user.username, name: user.name })
 })
 
 router.put('/:username', async (req, res) => {
