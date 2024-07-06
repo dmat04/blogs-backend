@@ -1,27 +1,29 @@
 const router = require('express').Router()
+const { Op } = require('sequelize')
 
 const { Blog, User } = require('../models')
-const userAuthenticator = require('../middleware/userAuthenticator')
-const { EntityNotFoundError } = require('../middleware/errorHandler')
-
-const blogFinder = async (req, res, next) => {
-  req.blog = await Blog.findByPk(req.params.id)
-
-  if (!req.blog) throw new EntityNotFoundError()
-
-  next()
-}
+const { blogFinder, userAuthenticator } = require('../middleware')
 
 router.use('/:id', blogFinder)
 
 router.get('/', async (req, res) => {
+  const where = {}
+
+  if (req.query.search) {
+    where.title = {
+      [Op.iLike]: `%${req.query.search}%`
+    }
+  }
+
   const blogs = await Blog.findAll({
     attributes: { exclude: ['userId'] },
     include: {
       model: User,
       attributes: ['username', 'name']
-    }
+    },
+    where,
   })
+
   res.json(blogs)
 })
 
