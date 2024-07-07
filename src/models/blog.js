@@ -1,4 +1,4 @@
-const { Model, DataTypes } = require('sequelize')
+const { DataTypes, Model, Op, fn } = require('sequelize')
 const { sequelize } = require('../util/db')
 
 class Blog extends Model { }
@@ -24,6 +24,17 @@ Blog.init({
   likes: {
     type: DataTypes.INTEGER,
     defaultValue: 0,
+  },
+  yearWritten: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    validate: {
+      checkYearWritte: (value) => {
+        if (value < 1991 || value > (new Date().getFullYear())) {
+          throw new Error('blog.yearWritten must be between 1991 and current year')
+        }
+      }
+    }
   }
 }, {
   sequelize,
