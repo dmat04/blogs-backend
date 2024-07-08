@@ -18,6 +18,13 @@ router.get('/', async (req, res) => {
 })
 
 router.get('/:id', async (req, res) => {
+  const whereClause = {}
+
+  switch (req.query.read) {
+    case 'true': whereClause.read = true; break;
+    case 'false': whereClause.read = false; break
+  }
+
   const user = await User.findByPk(req.params.id, {
     attributes: {
       exclude: ['passwordHash', 'createdAt', 'updatedAt'],
@@ -26,7 +33,8 @@ router.get('/:id', async (req, res) => {
       model: Blog,
       as: 'reading_list',
       through: {
-        attributes: ['id', 'read']
+        attributes: ['id', 'read'],
+        where: whereClause,
       },
       attributes: {
         exclude: ['createdAt', 'updatedAt', 'userId'],
