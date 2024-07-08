@@ -1,4 +1,5 @@
 const router = require('express').Router()
+const { literal, col } = require('sequelize')
 
 const { User, Blog } = require('../models')
 const { hashPassword } = require('../util/password')
@@ -18,12 +19,18 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   const user = await User.findByPk(req.params.id, {
-    attributes: { exclude: ['passwordHash', 'createdAt', 'updatedAt'] },
+    attributes: {
+      exclude: ['passwordHash', 'createdAt', 'updatedAt'],
+    },
     include: {
       model: Blog,
       as: 'reading_list',
-      through: { attributes: [] },
-      attributes: ['id', 'url', 'title', 'author', 'likes', 'year_written']
+      through: {
+        attributes: ['id', 'read']
+      },
+      attributes: {
+        exclude: ['createdAt', 'updatedAt', 'userId'],
+      }
     }
   })
 
