@@ -8,12 +8,28 @@ const { EntityNotFoundError } = require('../middleware/errorHandler')
 router.get('/', async (req, res) => {
   const users = await User.findAll({
     attributes: { exclude: ['passwordHash'] },
-    include: { 
+    include: [{ 
       model: Blog,
       attributes: { exclude: 'userId' }
-    } 
+    } ]
   })
   res.json(users)
+})
+
+router.get('/:id', async (req, res) => {
+  const user = await User.findByPk(req.params.id, {
+    attributes: { exclude: ['passwordHash', 'createdAt', 'updatedAt'] },
+    include: {
+      model: Blog,
+      as: 'reading_list',
+      through: { attributes: [] },
+      attributes: ['id', 'url', 'title', 'author', 'likes', 'year_written']
+    }
+  })
+
+  if (!user) throw new EntityNotFoundError()
+
+  res.json(user)
 })
 
 router.post('/', async (req, res) => {
