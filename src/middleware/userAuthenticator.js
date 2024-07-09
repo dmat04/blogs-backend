@@ -1,27 +1,31 @@
-const jwt = require('jsonwebtoken')
-
-const { JWT_SECRET } = require('../util/config')
-const { User } = require('../models')
+const { decodeToken } = require('../util/token')
+const { User, ActiveSession } = require('../models')
 
 const userAuthenticator = async (req, res, next) => {
   const authorization = req.get('authorization')
-  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
-    try {
-      const decodedToken = jwt.verify(authorization.substring(7), JWT_SECRET)
-      const user = await User.findByPk(decodedToken.id)
-      
-      if (user) {
-        req.user = user
-      } else {
-        return res.status(401).json({ error: 'token invalid '})  
-      }
-    } catch { 
-      return res.status(401).json({ error: 'token invalid '})
-    }
-  } else {
+  if (!authorization || !authorization.toLowerCase().startsWith('bearer ')) {
     return res.status(401).json({ error: 'token missing' })
   }
 
+  const token = authorization.substring(7)
+  const decodedToken = decodeToken(token)
+
+  if (!decodedToken) {
+    return res.status(401).json({ error: 'token invalid ' })
+  }
+
+  const user = await User.findByPk(decodedToken.userId)
+  const session = await ActiveSession.findByPk(decodedToken.sessionId)
+
+  if (!user) {
+    return res.status(401).json({ error: `user doesn't exist` })
+  } else if (user.disabled) {
+    return res.status(403).json({ error: `user disabled, contact support` })
+  } else if (!session) {
+    return res.status(401).json({ error: `token expired` })
+  }
+
+  req.user = user
   next()
 }
 

@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "migration:down": "node src/util/rollback.js"
+    "migration:down": "node src/util/rollback.js",
+    "migration:up": "node src/util/apply_migrations.js"
   },
   "author": "",
   "license": "ISC",

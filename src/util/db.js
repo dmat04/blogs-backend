@@ -29,7 +29,6 @@ const rollbackMigration = async () => {
 const connectToDatabase = async () => {
   try {
     await sequelize.authenticate()
-    await runMigrations()
     console.log('connected to database')
   } catch (error) {
     console.error('failed to connect to database: ', error)
@@ -39,4 +38,9 @@ const connectToDatabase = async () => {
   return null;
 }
 
-module.exports = { connectToDatabase, sequelize, rollbackMigration }
+module.exports = {
+  connectToDatabase,
+  sequelize,
+  runMigrations,
+  rollbackMigration,
+ }

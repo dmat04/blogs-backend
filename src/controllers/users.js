@@ -1,10 +1,10 @@
 const router = require('express').Router()
-const { literal, col } = require('sequelize')
 
 const { User, Blog } = require('../models')
 const { hashPassword } = require('../util/password')
-const { generateToken } = require('../util/login')
+const { generateToken } = require('../util/token')
 const { EntityNotFoundError } = require('../middleware/errorHandler')
+const { userAuthenticator } = require('../middleware')
 
 router.get('/', async (req, res) => {
   const users = await User.findAll({
@@ -71,7 +71,7 @@ router.post('/', async (req, res) => {
     .send({ token, username: user.username, name: user.name })
 })
 
-router.put('/:username', async (req, res) => {
+router.put('/:username', userAuthenticator, async (req, res) => {
   const { username } = req.params
 
   const user = await User.findOne({

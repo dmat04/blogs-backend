@@ -1,8 +1,8 @@
 const router = require('express').Router()
 
 const { checkPassword } = require('../util/password')
-const { generateToken } = require('../util/login')
-const { User } = require('../models')
+const { encodeToken } = require('../util/token')
+const { User, ActiveSession } = require('../models')
 
 router.post('/', async (req, res) => {
   const { username, password } = req.body
@@ -18,7 +18,11 @@ router.post('/', async (req, res) => {
     })
   }
 
-  const token = generateToken(user.username, user.id)
+  const session = await ActiveSession.create({
+    userId: user.id
+  })
+
+  const token = encodeToken(user.username, user.id, session.id)
 
   res
     .status(200)

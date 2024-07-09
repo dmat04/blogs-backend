@@ -1,4 +1,4 @@
-const { DataTypes, Model, Op, fn } = require('sequelize')
+const { DataTypes, Model } = require('sequelize')
 const { sequelize } = require('../util/db')
 
 class ReadingListBlog extends Model { }
